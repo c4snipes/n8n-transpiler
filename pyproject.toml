@@ -1,0 +1,101 @@
+[project]
+name = "n8n-transpiler"
+version = "0.1.0"
+description = "Convert n8n workflow JSON exports into standalone, human-readable Python scripts."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Cole Snipes" }]
+keywords = ["n8n", "transpiler", "workflow", "automation", "codegen"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Code Generators",
+]
+dependencies = [
+    "typer>=0.12.0",
+    "pydantic>=2.6.0",
+    "httpx>=0.27.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.5.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "syrupy>=4.6.0",
+    "respx>=0.21.0",
+    "mypy>=1.10.0",
+]
+oracle = [
+    "py-mini-racer>=0.12.0",
+]
+
+[project.scripts]
+n8n2py = "n8n_transpiler.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/c4snipes/n8n-transpiler"
+Repository = "https://github.com/c4snipes/n8n-transpiler"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/n8n_transpiler"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501", # line length handled by formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra --strict-markers --strict-config"
+testpaths = ["tests"]
+markers = [
+    "oracle: tests requiring py-mini-racer JS runtime (skipped if not installed)",
+    "e2e: end-to-end tests against generated workflow output",
+]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+files = ["src"]
+
+[[tool.mypy.overrides]]
+module = "py_mini_racer.*"
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["src/n8n_transpiler"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
